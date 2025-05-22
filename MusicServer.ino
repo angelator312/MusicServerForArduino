@@ -11,8 +11,8 @@
 #define BUZZZER_PIN 18
 #define LED_PIN 5
 
-const char *ssid = "RA";
-const char *password = "55555333";
+const char *ssid = ".....";
+const char *password = ".....";
 
 WebServer server(80);
 
