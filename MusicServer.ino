@@ -49,15 +49,20 @@ void handleURLForMusic(int a) {
   playMusic(a);
 }
 void handleNotFound() {
-  server.send(404, "text/plain", "Only domain is /music?music=idx");
+  server.send(404, "text/plain", "Only domain is /music?m=idx!");
 }
 void setupServer() {
   server.on("/", handleRoot);
 
   server.on("/music", []() {
+    if(!server_on)
+    {
+      server.send(404, "text/plain", "Server is stoped!");
+      return;
+    }
     String message;
     for (uint8_t i = 0; i < server.args(); ++i) {
-      if (server.argName(i) == "music"||server.argName(i) == "Music") {
+      if (server.argName(i) == "m"||server.argName(i) == "music") {
         message = playMusic(server.arg(i).toInt());
         break;
       }
@@ -105,14 +110,7 @@ void loop(void) {
   if (digitalRead(RED_BUTTON_PIN)) {
     Serial.print("RED\n");
     server_on = !server_on;
-    if (server_on) {
-      digitalWrite(LED_PIN, 1);
-      server.begin();
-      setupServer();
-    } else {
-      digitalWrite(LED_PIN, 0);
-      server.stop();
-    }
+    digitalWrite(LED_PIN, server_on);
     delay(1000);
   }
   if (digitalRead(BLUE_BUTTON_PIN) and server_on) {
