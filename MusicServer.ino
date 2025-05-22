@@ -23,10 +23,9 @@ std::vector<int> melody[] = { { NOTE_C4, NOTE_G3, NOTE_G3, NOTE_A3, NOTE_G3, 0, 
 std::vector<int> noteDurations[] = { { 4, 8, 8, 4, 4, 4, 4, 4 } };
 
 bool server_on = true;
-int last_music=0;
+int last_music = 0;
 String playMusic(int idx) {
-  if (idx >= MELODIES) return "Error in music index!";
-  last_music=idx;
+  last_music = idx;
   for (int thisNote = 0; thisNote < 8; thisNote++) {
     int noteDuration = 1000 / noteDurations[idx][thisNote];
     tone(BUZZZER_PIN, melody[idx][thisNote], noteDuration);
@@ -55,19 +54,22 @@ void setupServer() {
   server.on("/", handleRoot);
 
   server.on("/music", []() {
-    if(!server_on)
-    {
+    if (!server_on) {
       server.send(404, "text/plain", "Server is stoped!");
       return;
     }
-    String message;
+    int music = MELODIES;
     for (uint8_t i = 0; i < server.args(); ++i) {
-      if (server.argName(i) == "m"||server.argName(i) == "music") {
-        message = playMusic(server.arg(i).toInt());
+      if (server.argName(i) == "m" || server.argName(i) == "music") {
+        music = server.arg(i).toInt();
         break;
       }
     }
-    server.send(200, "text/plain", message);
+    if (music >= MELODIES) {
+      server.send(404, "text/plain", "You don't specify valid music to play!");
+      return;
+    }
+    server.send(200, "text/plain", playMusic(music));
   });
 
   server.onNotFound(handleNotFound);
